@@ -1,32 +1,64 @@
 import * as THREE from "three"
 import { OrbitControls } from "three/examples/jsm/Addons.js"
 
-const threejs = new THREE.WebGLRenderer()
-threejs.setSize(400, 400)
-document.body.appendChild(threejs.domElement)
+class App {
+  #threejs_ = null
+  #camera_ = null
+  #scene_ = null
+  #controls_ = null
+  #mesh_ = null
+  #clock_ = new THREE.Clock()
 
-const camera = new THREE.PerspectiveCamera()
-camera.position.z = 5
+  constructor() {}
 
-const controls = new OrbitControls(camera, threejs.domElement)
-controls.enableDamping = true
-controls.target.set(0, 0, 0)
-controls.update()
+  initiliaze() {
+    this.#threejs_ = new THREE.WebGLRenderer()
+    this.#threejs_.setSize(window.innerWidth, window.innerHeight)
+    document.body.appendChild(this.#threejs_.domElement)
 
-const scene = new THREE.Scene()
+    const aspect = window.innerWidth / window.innerHeight
+    this.#camera_ = new THREE.PerspectiveCamera(50, aspect, 0.1, 2000)
+    this.#camera_.position.z = 5
 
-const mesh = new THREE.Mesh(
-  new THREE.BoxGeometry(),
-  new THREE.MeshBasicMaterial({
-    color: 0xff0000,
-    wireframe: true,
-  })
-)
-scene.add(mesh)
+    this.#controls_ = new OrbitControls(
+      this.#camera_,
+      this.#threejs_.domElement
+    )
+    this.#controls_.enableDamping = true
+    this.#controls_.target.set(0, 0, 0)
+    this.#controls_.update()
 
-function run() {
-  threejs.render(scene, camera)
+    this.#scene_ = new THREE.Scene()
 
-  requestAnimationFrame(run)
+    this.#mesh_ = new THREE.Mesh(
+      new THREE.BoxGeometry(),
+      new THREE.MeshBasicMaterial({
+        color: 0xff0000,
+        wireframe: true,
+      })
+    )
+    this.#scene_.add(this.#mesh_)
+    this.#raf()
+  }
+
+  #raf() {
+    requestAnimationFrame(() => {
+      const deltaTime = this.#clock_.getDelta()
+      this.#step_(deltaTime)
+      this.#render_()
+      this.#raf()
+    })
+  }
+
+  #step_(timeElapsed) {
+    //state updates
+    //this.#mesh_.rotation.y += timeElapsed
+  }
+
+  #render_() {
+    this.#threejs_.render(this.#scene_, this.#camera_)
+  }
 }
-run()
+
+const app = new App()
+app.initiliaze()
