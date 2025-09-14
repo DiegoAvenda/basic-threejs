@@ -9,7 +9,11 @@ class App {
   #mesh_ = null
   #clock_ = new THREE.Clock()
 
-  constructor() {}
+  constructor() {
+    window.addEventListener("resize", () => {
+      this.#onWindowResize_()
+    })
+  }
 
   initiliaze() {
     this.#threejs_ = new THREE.WebGLRenderer()
@@ -38,7 +42,27 @@ class App {
       })
     )
     this.#scene_.add(this.#mesh_)
+
+    this.#onWindowResize_()
     this.#raf()
+  }
+
+  #onWindowResize_() {
+    const canvas = this.#threejs_.domElement
+    const dpr = window.devicePixelRatio
+    const w = window.innerWidth
+    const h = window.innerHeight
+    const aspect = w / h
+    console.log(`Resizing to ${w} x ${h}`)
+
+    canvas.style.width = w + "px"
+    canvas.style.height = h + "px"
+
+    this.#threejs_.setSize(w * dpr, h * dpr, false)
+    //this.#threejs_.setPixelRatio(dpr)
+
+    this.#camera_.aspect = aspect
+    this.#camera_.updateProjectionMatrix()
   }
 
   #raf() {
@@ -52,7 +76,7 @@ class App {
 
   #step_(timeElapsed) {
     //state updates
-    //this.#mesh_.rotation.y += timeElapsed
+    //this.#mesh_.rotation.y += timeElapsed * 0.1
   }
 
   #render_() {
